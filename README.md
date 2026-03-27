@@ -92,16 +92,13 @@ Safety interlocks ensure proper sequencing and prevent unsafe operation.
 ## Screenshots
 
 ### Main Interface
-![Main UI](<img width="1442" height="965" alt="MainUI" src="https://github.com/user-attachments/assets/a0b28a99-018d-41c6-88d7-3f31424befcc" />
-)
+![Main UI]("C:\Users\Joseph\Documents\MainUI.PNG")
 
 ### Logs Page
-![Logs UI](<img width="2000" height="1327" alt="LogsUI" src="https://github.com/user-attachments/assets/1dd029c8-e4bc-4753-8aa6-dd80a57dc9ef" />
-)
+![Logs UI]("C:\Users\Joseph\Documents\LogsUI.PNG")
 
 ### Diagnostics Page
-![Diagnostics UI](<img width="1450" height="969" alt="DiagnosticsUI" src="https://github.com/user-attachments/assets/6e041088-1831-470e-9e96-de32cadc484e" />
-)
+![Diagnostics UI]("C:\Users\Joseph\Documents\DiagnosticsUI.PNG")
 
 ---
 

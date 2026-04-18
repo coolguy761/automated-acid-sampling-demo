@@ -404,7 +404,7 @@ void pollNextion() {
 }
 
 // =====================
-// HMI Update Helpers
+// HMI Update Helpers (do not touch)
 // =====================
 String activeLiftText() {
   if (digitalRead(PIN_LIFT_FWD) == HIGH) return "LIFT: EXTEND";

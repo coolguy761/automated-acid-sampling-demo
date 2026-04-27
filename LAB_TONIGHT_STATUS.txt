@@ -1,0 +1,149 @@
+LAB TONIGHT STATUS
+Date: April 19, 2026
+
+Current Goal
+- Validate the Nextion-driven 3-motor demo on one Arduino Uno.
+- Use timed motor sequencing instead of physical limit switches for now.
+- Run the full acid sampling cycle in the order the mechanism actually needs.
+- Push RTC time to all Nextion pages and use timestamps in the event log.
+
+Full Cycle Definition
+1. Motor 1 extends down.
+2. Motor 2 opens the lid on the cup.
+3. Motor 2 closes the lid.
+4. Motor 1 retracts back up.
+5. Motor 2 opens the lid again after retraction.
+6. Motor 3 tilts.
+7. Motor 3 returns to the default position.
+8. Motor 2 closes the lid to finish the cycle.
+
+Direction Assumptions In The Current Sketches
+- M1F = extend down
+- M1R = retract up
+- M2F = open lid
+- M2R = close lid
+- M3F = tilt out
+- M3R = tilt back to default
+
+Tuning Constants Now Added
+- Direction flip flags at the top of each sketch:
+  M1_FORWARD_IS_DOWN
+  M2_FORWARD_IS_OPEN
+  M3_FORWARD_IS_TILT_OUT
+- Per-step timing constants at the top of each sketch:
+  STEP_01_M1_DOWN_MS
+  STEP_02_M2_OPEN_MS
+  STEP_03_M2_CLOSE_MS
+  STEP_04_M1_UP_MS
+  STEP_05_M2_OPEN_AFTER_MS
+  STEP_06_M3_TILT_OUT_MS
+  STEP_07_M3_TILT_HOME_MS
+  STEP_08_M2_FINAL_CLOSE_MS
+- This means direction and travel time can now be tuned without rewriting the sequence table or state machine.
+
+What Is Working
+- Nextion is sending commands to the Arduino.
+- The Arduino can drive all 3 DRV8825-controlled stepper motors.
+- The test sketch can run a timed full-cycle sequence from the HMI.
+- The HMI command link is confirmed by the screen/status behavior.
+
+Primary Sketch To Use First
+- C:\Users\coolg\Documents\Codex\2026-04-19-files-mentioned-by-the-user-acid\Nextion_Motor_Command_Test_Uno.ino
+
+Backup Sketch
+- C:\Users\coolg\Documents\Codex\2026-04-19-files-mentioned-by-the-user-acid\Acid_Sampling_Failsafe_Demo_Uno.ino
+
+Current Uno Pin Map
+- D2  -> Motor 1 STEP
+- D3  -> Motor 1 DIR
+- D4  -> Motor 2 STEP
+- D5  -> Motor 2 DIR
+- D6  -> Motor 3 STEP
+- D7  -> Motor 3 DIR
+- D8  -> Shared DRV8825 ENABLE
+- D10 -> Arduino RX from Nextion TX
+- D11 -> Arduino TX to Nextion RX
+- A4  -> RTC SDA
+- A5  -> RTC SCL
+
+DRV8825 Notes
+- Shared ENABLE on D8
+- Sketch assumes ENABLE is active LOW
+- Motor power must come from the motor supply, not the Uno
+- One motor runs at a time in the current demo
+
+Nextion Commands In Current Test Sketch
+- START -> run full cycle: M1 down, lid open, lid close, M1 up, lid open, tilt out, tilt home, lid close
+- RESET -> stop and return to idle
+- STOP -> stop motion
+- M1F / M1R
+- M2F / M2R
+- M3F / M3R
+- STATUS
+
+RTC / Time Behavior
+- Sketch reads time from an I2C RTC module at address 0x68
+- Current code is written for the common DS3231/DS1307-style register layout
+- Time is pushed to:
+  page0.tClock
+  page1.tClock1
+  page2.tClock2
+- Log entries are stored as:
+  HH:MM:SS | EVENT TEXT
+- If the RTC is missing or not responding, the display shows:
+  TIME: RTC ERR
+
+Current HMI Behavior Expected
+- Main page should reflect current motion or current cycle step
+- Log page should use tFrame for the log text area
+- Log page should force-refresh when PAGE:LOG opens
+- Diagnostic page still needs cleanup/mapping to current hardware labels
+
+Most Important HMI Object Notes
+- Log display object is tFrame
+- Existing pages still contain older labels tied to the old architecture
+- Renaming visible labels is okay
+- Avoid changing object names unless necessary for the code
+
+What Still Needs Validation
+- Confirm the new timed full cycle matches the real mechanism directions
+- Confirm lid open/close direction is correct on Motor 2
+- Confirm tilt out/return direction is correct on Motor 3
+- Confirm the RTC module is wired to A4/A5 and already set to the correct current time
+- Confirm tFrame displays the log buffer properly on the log page
+- Confirm main page fields update consistently during the sequence
+- Confirm all three page clocks update once per second
+
+Best Test Order At The Lab
+1. Upload Nextion_Motor_Command_Test_Uno.ino
+2. Power Uno + Nextion
+3. Verify the screen responds to START / STOP / RESET
+4. Test each motor manually first with M1F/M1R, M2F/M2R, M3F/M3R
+5. If a motor direction is backwards, flip the matching top-level boolean constant for that axis
+6. Run one full cycle and watch the order carefully
+7. Increase or decrease the matching STEP_*_MS constant until each motion lands where it should
+8. Open log page and confirm tFrame shows the log text with timestamps
+9. If logs still do not show, temporarily hardcode:
+   HELLO
+   LOG PAGE
+   into tFrame from setup for proof
+10. Only after that, clean up labels and page behavior
+
+Important Engineering Decision For Now
+- Do not force cup-mounted limit switches into the acid-exposed zone
+- For the current demo, use timed motion to simulate end-of-travel
+- If physical switches are added later, prioritize lift-axis switches on the fixed upper frame
+
+How To Explain Current State
+- We validated one Uno controlling three DRV8825 drivers and three stepper motors.
+- We validated the Nextion-to-Arduino command path.
+- We updated the sequence logic so START now follows the intended full cycle instead of the older simple M1-M2-M3 demo.
+- We are still using timed sequence transitions in place of final limit-switch hardware for the prototype demo.
+
+Files In This Workspace
+- C:\Users\coolg\Documents\Codex\2026-04-19-files-mentioned-by-the-user-acid\Nextion_Motor_Command_Test_Uno.ino
+- C:\Users\coolg\Documents\Codex\2026-04-19-files-mentioned-by-the-user-acid\Acid_Sampling_Failsafe_Demo_Uno.ino
+- C:\Users\coolg\Documents\Codex\2026-04-19-files-mentioned-by-the-user-acid\LAB_TONIGHT_STATUS.txt
+
+Reminder
+- No real Arduino compile check was possible in this desktop workspace because no Arduino toolchain was available here.
